@@ -1129,8 +1129,8 @@ class CheckoutExistingBranchFailed(CommandFailed):
     EXIT_CODE = 65
 
 
-class ResetHardFailed(CommandFailed):
-    "Failed to hard reset downloaded branch"
+class ResetKeepFailed(CommandFailed):
+    "Failed to reset downloaded branch"
     EXIT_CODE = 66
 
 
@@ -1245,8 +1245,8 @@ def checkout_review(branch_name, remote, remote_branch):
                 raise BranchTrackingMismatch
             run_command_exc(CheckoutExistingBranchFailed,
                             "git", "checkout", branch_name)
-            run_command_exc(ResetHardFailed,
-                            "git", "reset", "--hard", "FETCH_HEAD")
+            run_command_exc(ResetKeepFailed,
+                            "git", "reset", "--keep", "FETCH_HEAD")
         else:
             raise
 
