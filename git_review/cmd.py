@@ -43,7 +43,7 @@ GLOBAL_CONFIG = "/etc/git-review/git-review.conf"
 USER_CONFIG = os.path.join(CONFIGDIR, "git-review.conf")
 DEFAULTS = dict(scheme='ssh', hostname=False, port=None, project=False,
                 branch='master', remote="gerrit", rebase="1",
-                track="0", usepushurl="0", notopic=False)
+                track="0", usepushurl="0", notopic=False, branchauthor="name")
 COPYRIGHT = """\
 Copyright (C) 2011-2020 OpenStack LLC.
 
@@ -69,6 +69,7 @@ _use_color = None
 _orig_head = None
 _rewrites = None
 _rewrites_push = None
+BRANCHAUTHOR = None
 
 
 class colors(object):
@@ -732,6 +733,7 @@ def load_config_file(config_file):
         'track': 'track',
         'notopic': 'notopic',
         'usepushurl': 'usepushurl',
+        'branchauthor': 'branchauthor',
     }
     config = {}
     for config_key, option_name in options.items():
@@ -1200,7 +1202,8 @@ def fetch_review(review, masterbranch, remote, project):
     except KeyError:
         topic = review
     try:
-        author = re.sub(r'\W+', '_', review_info['owner']['name']).lower()
+        author = re.sub(r'\W+', '_',
+                        review_info['owner'][BRANCHAUTHOR]).lower()
     except KeyError:
         author = 'unknown'
     remote_branch = review_info['branch']
@@ -1413,7 +1416,19 @@ git-review is a tool that helps submitting git branches to gerrit for
 review.
 """
 
-    parser = argparse.ArgumentParser(usage=usage, description=description)
+    epilog = """\
+additional information:
+
+  Options configurable using: git config --global gitreview.OPTION VALUE
+
+  branchauthor          name (default), username, email
+"""
+
+    parser = argparse.ArgumentParser(
+        usage=usage,
+        description=description,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=epilog)
 
     topic_arg_group = parser.add_mutually_exclusive_group()
     topic_arg_group.add_argument("-t", "--topic", dest="topic",
@@ -1606,6 +1621,13 @@ review.
             remote = config['remote']
     yes = options.yes
     status = 0
+
+    global BRANCHAUTHOR
+    BRANCHAUTHOR = config['branchauthor']
+    if BRANCHAUTHOR not in ["name", "email", "username"]:
+        warn("Invalid gitreview.branchauthor: %s (using default: %s)"
+             % (BRANCHAUTHOR, DEFAULTS["branchauthor"]))
+        BRANCHAUTHOR = DEFAULTS["branchauthor"]
 
     if options.track:
         remote, branch = resolve_tracking(remote, branch)
