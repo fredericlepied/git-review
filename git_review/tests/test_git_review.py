@@ -403,11 +403,24 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
         self._assert_branch_would_be('master%topic=zat',
                                      extra_args=['-t', 'zat'])
 
+        # -t takes precedence over notopic
+        self._run_git('config', 'gitreview.notopic', 'true')
+        self._assert_branch_would_be('master%topic=zat',
+                                     extra_args=['-t', 'zat'])
+
     def test_git_review_T(self):
         self._run_git_review('-s')
         self._run_git('checkout', '-b', 'bug/456')
         self._simple_change('test file modified', 'commit message for bug 456')
         self._assert_branch_would_be('master%topic=bug/456')
+        self._assert_branch_would_be('master', extra_args=['-T'])
+
+        self._run_git('config', 'gitreview.notopic', 'true')
+        self._assert_branch_would_be('master')
+        self._run_git('config', 'gitreview.notopic', 'false')
+        self._assert_branch_would_be('master%topic=bug/456')
+
+        # -T takes precedence over notopic=false
         self._assert_branch_would_be('master', extra_args=['-T'])
 
     def test_git_review_T_t(self):

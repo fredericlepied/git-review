@@ -43,7 +43,7 @@ GLOBAL_CONFIG = "/etc/git-review/git-review.conf"
 USER_CONFIG = os.path.join(CONFIGDIR, "git-review.conf")
 DEFAULTS = dict(scheme='ssh', hostname=False, port=None, project=False,
                 branch='master', remote="gerrit", rebase="1",
-                track="0", usepushurl="0")
+                track="0", usepushurl="0", notopic=False)
 COPYRIGHT = """\
 Copyright (C) 2011-2020 OpenStack LLC.
 
@@ -730,6 +730,7 @@ def load_config_file(config_file):
         'remote': 'defaultremote',
         'rebase': 'defaultrebase',
         'track': 'track',
+        'notopic': 'notopic',
         'usepushurl': 'usepushurl',
     }
     config = {}
@@ -1575,6 +1576,7 @@ review.
         parser.set_defaults(rebase=convert_bool(config['rebase']),
                             track=convert_bool(config['track']),
                             remote=None,
+                            notopic=convert_bool(config['notopic']),
                             usepushurl=convert_bool(config['usepushurl']))
     options = parser.parse_args()
 
