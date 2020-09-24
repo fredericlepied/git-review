@@ -171,7 +171,7 @@ def git_credentials(url):
     """Return credentials using git credential or None."""
     cmd = 'git', 'credential', 'fill'
     stdin = 'url=%s' % url
-    rc, out = run_command_status(*cmd, stdin=stdin.encode('utf-8'))
+    rc, out = run_command_status(*cmd, stdin=stdin)
     if rc:
         return None
     data = dict(line.split('=', 1) for line in out.splitlines())

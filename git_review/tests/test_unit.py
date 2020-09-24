@@ -305,7 +305,7 @@ class GitReviewUnitTest(testtools.TestCase):
         # This gets encoded to utf8 which means the type passed down
         # is bytes.
         mock_run.assert_called_once_with('git', 'credential', 'fill',
-                                         stdin=b'url=%s' % url.encode('utf-8'))
+                                         stdin='url=%s' % url)
         calls = [mock.call(url), mock.call(url, auth=('user', 'pass'))]
         mock_get.assert_has_calls(calls)
 
@@ -323,7 +323,7 @@ class GitReviewUnitTest(testtools.TestCase):
         # This gets encoded to utf8 which means the type passed down
         # is bytes.
         mock_run.assert_called_once_with('git', 'credential', 'fill',
-                                         stdin=b'url=%s' % url.encode('utf-8'))
+                                         stdin='url=%s' % url)
         calls = [mock.call(url), mock.call(url, auth=('user', 'pass'))]
         mock_get.assert_has_calls(calls)
 
@@ -341,7 +341,7 @@ class GitReviewUnitTest(testtools.TestCase):
         # This gets encoded to utf8 which means the type passed down
         # is bytes.
         mock_run.assert_called_once_with('git', 'credential', 'fill',
-                                         stdin=b'url=%s' % url.encode('utf-8'))
+                                         stdin='url=%s' % url)
         mock_get.assert_called_once_with(url)
 
     @mock.patch('sys.argv', ['argv0', '--track', 'branch'])
