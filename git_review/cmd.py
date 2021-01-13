@@ -180,7 +180,7 @@ def git_credentials(url):
     rc, out = run_command_status(*cmd, stdin=stdin.encode('utf-8'))
     if rc:
         return None
-    data = dict(l.split('=', 1) for l in out.splitlines())
+    data = dict(line.split('=', 1) for line in out.splitlines())
     return data['username'], data['password']
 
 
