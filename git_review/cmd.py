@@ -17,24 +17,22 @@
 from __future__ import print_function
 
 import argparse
+import configparser
 import datetime
 import getpass
 import json
 import os
 import re
 import shlex
-import six
 import subprocess
 import sys
 import textwrap
+from urllib.parse import urlencode
+from urllib.parse import urljoin
+from urllib.parse import urlparse
 
 import pkg_resources
 import requests
-from six.moves import configparser
-from six.moves import input as do_input
-from six.moves.urllib.parse import urlencode
-from six.moves.urllib.parse import urljoin
-from six.moves.urllib.parse import urlparse
 
 
 VERBOSE = False
@@ -138,11 +136,7 @@ def run_command_status(*argv, **kwargs):
     if VERBOSE:
         print(datetime.datetime.now(), "Running:", " ".join(argv))
     if len(argv) == 1:
-        # for python2 compatibility with shlex
-        if sys.version_info < (3,) and isinstance(argv[0], six.text_type):
-            argv = shlex.split(argv[0].encode('utf-8'))
-        else:
-            argv = shlex.split(str(argv[0]))
+        argv = shlex.split(str(argv[0]))
     stdin = kwargs.pop('stdin', None)
     newenv = os.environ.copy()
     newenv['LANG'] = 'C'
@@ -416,7 +410,7 @@ def add_remote(scheme, hostname, port, project, remote, usepushurl):
         print("No remote set, testing %s" % remote_url)
     if not test_remote_url(remote_url):
         print("Could not connect to gerrit.")
-        username = do_input("Enter your gerrit username: ")
+        username = input("Enter your gerrit username: ")
         remote_url = make_remote_url(scheme, username, hostname, port, project)
         print("Trying again with %s" % remote_url)
         if not test_remote_url(remote_url):
@@ -954,7 +948,7 @@ def assert_one_change(remote, branch, yes, have_hook):
                       "branches (for independent changes).")
             print("\nThe outstanding commits are:\n\n%s\n\n"
                   "Do you really want to submit the above commits?" % output)
-            yes_no = do_input("Type 'yes' to confirm, other to cancel: ")
+            yes_no = input("Type 'yes' to confirm, other to cancel: ")
             if yes_no.lower().strip() != "yes":
                 print("Aborting.")
                 sys.exit(1)
@@ -1729,15 +1723,6 @@ review.
 
 
 def main():
-    # workaround for avoiding UnicodeEncodeError on print() with older python
-    if sys.version_info[0] < 3:
-        # without reload print would fail even if sys.stdin.encoding
-        # would report utf-8
-        # see: https://stackoverflow.com/a/23847316/99834
-        stdin, stdout, stderr = sys.stdin, sys.stdout, sys.stderr
-        reload(sys)  # noqa
-        sys.stdin, sys.stdout, sys.stderr = stdin, stdout, stderr
-        sys.setdefaultencoding(os.environ.get('PYTHONIOENCODING', 'utf-8'))
 
     try:
         _main()

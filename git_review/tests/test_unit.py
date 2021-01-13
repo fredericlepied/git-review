@@ -17,6 +17,7 @@
 
 import argparse
 import functools
+import io
 import os
 import sys
 import textwrap
@@ -28,13 +29,6 @@ import testtools
 from git_review import cmd
 from git_review.tests import IsoEnvDir
 from git_review.tests import utils
-
-# Use of io.StringIO in python =< 2.7 requires all strings handled to be
-# unicode. See if StringIO.StringIO is available first
-try:
-    import StringIO as io
-except ImportError:
-    import io
 
 
 class ConfigTestCase(testtools.TestCase):
