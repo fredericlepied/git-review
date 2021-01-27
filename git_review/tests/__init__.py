@@ -303,6 +303,8 @@ class BaseGitReviewTestCase(testtools.TestCase, GerritHelpers):
 
     def _run_gerrit(self, ssh_addr, ssh_port, http_addr, http_port):
         # create a copy of site dir
+        if os.path.exists(self.site_dir):
+            shutil.rmtree(self.site_dir)
         shutil.copytree(self.gsite_dir, self.site_dir)
         self.addCleanup(shutil.rmtree, self.site_dir)
         # write config
