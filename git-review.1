@@ -1,6 +1,6 @@
 .\" Uses mdoc(7). See `man 7 mdoc` for details about the syntax used here
 .\"
-.Dd June 12th, 2015
+.Dd 2021-02-09
 .Dt GIT\-REVIEW 1
 .Sh NAME
 .Nm git\-review
@@ -151,6 +151,14 @@ Sets the target topic for this change on the Gerrit server.
 If not specified, a bug number from the commit summary will be used. Alternatively, the local branch name will be used if different from remote branch.
 .It Fl T , Fl \-no\-topic
 Submit review without topic.
+.It Fl p , Fl \-private
+Send patch as a private patch ready for review. Gerrit versions >= 2.15
+.It Fl P , Fl \-remove\-private
+Send patch which already in private state to normal patch. Gerrit versions >= 2.15
+.It Fl w , Fl \-work\-in\-progress
+Send patch as work in progress for Gerrit versions >= 2.15
+.It Fl W , Fl \-ready
+Send patch that is already work in progress as ready for review. Gerrit versions >= 2.15
 .It Fl \-reviewers Ar reviewer ...
 Subscribe one or more reviewers to the uploaded patch sets.  Reviewers should be identifiable by Gerrit (usually use their Gerrit username or email address).
 .It Fl \-notify Ar type
@@ -195,6 +203,8 @@ on the command line.
 .It Fl \-use-pushurl
 Use the pushurl option for the origin remote rather than conventional
 separate Gerrit remotes.
+.It Fl \-license
+Print the license text and exit.
 .It Fl \-version
 Print the version number and exit.
 .El
