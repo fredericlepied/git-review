@@ -440,8 +440,8 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
         self._run_gerrit_cli('review', head, '--abandon')
 
         # Populate "project2" repo
-        self._run_gerrit_cli('create-project', '--empty-commit', '--name',
-                             'test/test_project2')
+        self._run_gerrit_cli('create-project', 'test/test_project2',
+                             '--empty-commit')
         project2_uri = self.project_uri.replace('test/test_project',
                                                 'test/test_project2')
         self._run_git('fetch', project2_uri, 'HEAD')

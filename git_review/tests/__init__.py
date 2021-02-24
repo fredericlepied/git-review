@@ -243,8 +243,8 @@ class BaseGitReviewTestCase(testtools.TestCase, GerritHelpers):
         self._configure_ssh(ssh_addr, ssh_port)
 
         # create Gerrit empty project
-        self._run_gerrit_cli('create-project', '--empty-commit',
-                             '--name', 'test/test_project')
+        self._run_gerrit_cli('create-project', 'test/test_project',
+                             '--empty-commit')
 
         # setup isolated area to work under
         self.useFixture(IsoEnvDir(self.site_dir))
