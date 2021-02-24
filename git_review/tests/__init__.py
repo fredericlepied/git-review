@@ -37,11 +37,10 @@ else:
     urlparse = urllib.parse.urlparse
 
 
-WAR_URL = 'http://tarballs.openstack.org/' \
-          'ci/gerrit/gerrit-v2.11.4.13.cb9800e.war'
+WAR_URL = 'https://gerrit-releases.storage.googleapis.com/gerrit-2.13.14.war'
 # Update GOLDEN_SITE_VER for every change altering golden site, including
 # WAR_URL changes. Set new value to something unique (just +1 it for example)
-GOLDEN_SITE_VER = '4'
+GOLDEN_SITE_VER = '5'
 
 
 # NOTE(yorik-sar): This function needs to be a perfect hash function for
@@ -147,53 +146,32 @@ class GerritHelpers(DirHelpers):
                       GOLDEN_SITE_VER)
                 return
 
-        # We write out the ssh host key for gerrit's ssh server which
-        # for undocumented reasons forces gerrit init to download the
-        # bouncy castle libs which we need for ssh that works on
-        # newer distros like ubuntu xenial.
-        os.makedirs(self._dir('gsite', 'etc'))
-        # create SSH host key
-        host_key_file = self._dir('gsite', 'etc', 'ssh_host_rsa_key')
-        utils.run_cmd('ssh-keygen', '-t', 'rsa', '-b', '4096', '-m', 'PEM',
-                                    '-f', host_key_file, '-N', '')
-
         print("Creating a new golden site of version " + GOLDEN_SITE_VER)
 
-        # initialize Gerrit
+        # initialize Gerrit in developer mode, and include the
+        # download-commands plugin (needed by some tests which try to retrieve
+        # by Change-Id string)
         utils.run_cmd('java', '-jar', self.gerrit_war,
-                      'init', '-d', self.gsite_dir,
+                      'init', '-d', self.gsite_dir, '--dev',
                       '--batch', '--no-auto-start', '--install-plugin',
                       'download-commands')
+
+        # pre-index so that it won't be triggered on start for each copy
         utils.run_cmd('java', '-jar', self.gerrit_war, 'reindex',
                       '-d', self.gsite_dir)
 
+        # record our site version
         with open(golden_ver_file, 'w') as f:
             f.write(GOLDEN_SITE_VER)
 
         # create SSH public key
-        key_file = self._dir('gsite', 'test_ssh_key')
         utils.run_cmd('ssh-keygen', '-t', 'rsa', '-b', '4096', '-m', 'PEM',
-                                    '-f', key_file, '-N', '')
-        with open(key_file + '.pub', 'rb') as pub_key_file:
-            pub_key = pub_key_file.read()
-
-        # create admin user in Gerrit database
-        sql_query = """INSERT INTO ACCOUNTS (REGISTERED_ON) VALUES (NOW());
-        INSERT INTO ACCOUNT_GROUP_MEMBERS (ACCOUNT_ID, GROUP_ID) \
-            VALUES (0, 1);
-        INSERT INTO ACCOUNT_EXTERNAL_IDS (ACCOUNT_ID, EXTERNAL_ID, PASSWORD) \
-            VALUES (0, 'username:test_user', 'test_pass');
-        INSERT INTO ACCOUNT_SSH_KEYS (SSH_PUBLIC_KEY, VALID) \
-            VALUES ('%s', 'Y')""" % pub_key.decode()
-
-        utils.run_cmd('java', '-jar',
-                      self._dir('gsite', 'bin', 'gerrit.war'),
-                      'gsql', '-d', self.gsite_dir, '-c', sql_query)
+                      '-f', self._dir('gsite', 'test_ssh_key'), '-N', '')
 
     def _run_gerrit_cli(self, command, *args):
         """SSH to gerrit Gerrit server and run command there."""
         return utils.run_cmd('ssh', '-p', str(self.gerrit_port),
-                             'test_user@' + self.gerrit_host, 'gerrit',
+                             'admin@' + self.gerrit_host, 'gerrit',
                              command, *args)
 
     def _run_git_review(self, *args, **kwargs):
@@ -233,14 +211,26 @@ class BaseGitReviewTestCase(testtools.TestCase, GerritHelpers):
         self.test_dir = self._dir('site', 'tmp', 'test_project')
         self.ssh_dir = self._dir('site', 'tmp', 'ssh')
         self.project_ssh_uri = (
-            'ssh://test_user@%s:%s/test/test_project.git' % (
+            'ssh://admin@%s:%s/test/test_project.git' % (
                 ssh_addr, ssh_port))
         self.project_http_uri = (
-            'http://test_user:test_pass@%s:%s/test/test_project.git' % (
+            'http://admin:secret@%s:%s/test/test_project.git' % (
                 http_addr, http_port))
 
         self._run_gerrit(ssh_addr, ssh_port, http_addr, http_port)
         self._configure_ssh(ssh_addr, ssh_port)
+
+        # Upload SSH key for test admin user
+        with open(self._dir('gsite', 'test_ssh_key.pub'), 'rb') as pub_key_fd:
+            pub_key = pub_key_fd.read().decode().strip()
+        resp = requests.post(
+            'http://%s:%s/a/accounts/self/sshkeys' % (http_addr, http_port),
+            auth=requests.auth.HTTPDigestAuth('admin', 'secret'),
+            headers={'Content-Type': 'text/plain'},
+            data=pub_key)
+        if resp.status_code != 201:
+            raise RuntimeError(
+                'SSH key upload failed: %s "%s"' % (resp, resp.text))
 
         # create Gerrit empty project
         self._run_gerrit_cli('create-project', 'test/test_project',
@@ -373,7 +363,7 @@ class BaseGitReviewTestCase(testtools.TestCase, GerritHelpers):
         self._run_git('remote', 'add', self._remote, self.project_uri)
 
     def _configure_gitreview_username(self):
-        self._run_git('config', 'gitreview.username', 'test_user')
+        self._run_git('config', 'gitreview.username', 'admin')
 
     def _pick_gerrit_port_and_dir(self):
         hash_ = _hash_test_id(self.id())
@@ -408,4 +398,4 @@ class HttpMixin(object):
 
     def _configure_gitreview_username(self):
         # trick to set http password
-        self._run_git('config', 'gitreview.username', 'test_user:test_pass')
+        self._run_git('config', 'gitreview.username', 'admin:secret')
