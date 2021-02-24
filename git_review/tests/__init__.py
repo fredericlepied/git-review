@@ -313,13 +313,25 @@ class BaseGitReviewTestCase(testtools.TestCase, GerritHelpers):
         utils.run_cmd(gerrit_sh, 'start')
         self.addCleanup(utils.run_cmd, gerrit_sh, 'stop')
 
+    def _unstaged_change(self, change_text, file_=None):
+        """Helper method to create small changes and not stage them."""
+        if file_ is None:
+            file_ = self._dir('test', 'test_file.txt')
+        utils.write_to_file(file_, ''.encode())
+        self._run_git('add', file_)
+        utils.write_to_file(file_, change_text.encode())
+
+    def _uncommitted_change(self, change_text, file_=None):
+        """Helper method to create small changes and not commit them."""
+        if file_ is None:
+            file_ = self._dir('test', 'test_file.txt')
+        self._unstaged_change(change_text, file_)
+        self._run_git('add', file_)
+
     def _simple_change(self, change_text, commit_message,
                        file_=None):
         """Helper method to create small changes and commit them."""
-        if file_ is None:
-            file_ = self._dir('test', 'test_file.txt')
-        utils.write_to_file(file_, change_text.encode())
-        self._run_git('add', file_)
+        self._uncommitted_change(change_text, file_)
         self._run_git('commit', '-m', commit_message)
 
     def _simple_amend(self, change_text, file_=None):
