@@ -9,5 +9,7 @@
         - tox-py36
         - tox-py37
         - tox-py38
+        - tox-py39:
+            nodeset: ubuntu-focal
     gate:
       jobs: *jobs
