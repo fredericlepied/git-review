@@ -197,7 +197,7 @@ class BaseGitReviewTestCase(testtools.TestCase, GerritHelpers):
         Require Gerrit war file in the .gerrit directory to run Gerrit local.
         """
         super(BaseGitReviewTestCase, self).setUp()
-        self.useFixture(fixtures.Timeout(2 * 60, True))
+        self.useFixture(fixtures.Timeout(5 * 60, True))
 
         # ensures git-review command runs in local mode (for functional tests)
         self.useFixture(
