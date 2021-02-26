@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011-2020 OpenStack LLC.
+# Copyright OpenStack Foundation and OpenDev Contributors
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License.  You may obtain
@@ -45,7 +45,7 @@ DEFAULTS = dict(scheme='ssh', hostname=False, port=None, project=False,
                 branch='master', remote="gerrit", rebase="1",
                 track="0", usepushurl="0", notopic=False, branchauthor="name")
 COPYRIGHT = """\
-Copyright (C) 2011-2020 OpenStack LLC.
+Copyright OpenStack Foundation and OpenDev Contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -1372,21 +1372,21 @@ class _DownloadFlag(argparse.Action):
     def __call__(self, parser, namespace, value, option_string=None):
         url = urlparse(value)
         # Turn URLs into change ids:
-        #   https://review.openstack.org/423436
+        #   https://review.opendev.org/423436
         # and
-        #   https://review.openstack.org/423436/
+        #   https://review.opendev.org/423436/
         # and
-        #   https://review.openstack.org/#/c/423436
+        #   https://review.opendev.org/#/c/423436
         # and
-        #   https://review.openstack.org/c/<project>/+/423436
+        #   https://review.opendev.org/c/<project>/+/423436
         # become
         #   "423436"
         # while
-        #   https://review.openstack.org/423436/1
+        #   https://review.opendev.org/423436/1
         # and
-        #   https://review.openstack.org/#/c/423436/1
+        #   https://review.opendev.org/#/c/423436/1
         # and
-        #   https://review.openstack.org/c/<project>/+/423436/1
+        #   https://review.opendev.org/c/<project>/+/423436/1
         # become
         #   "423436,1".
         #

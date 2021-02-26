@@ -51,9 +51,9 @@ section below.
 Example .gitreview file (used to upload for git-review itself)::
 
     [gerrit]
-    host=review.openstack.org
+    host=review.opendev.org
     port=29418
-    project=openstack-infra/git-review.git
+    project=opendev/git-review.git
     defaultbranch=master
 
 Required values: ``host``, ``project``
