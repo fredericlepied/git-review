@@ -1,8 +1,12 @@
 - project:
+    vars:
+      release_python: python3
     templates:
-      - publish-tox-docs-infra
+      - publish-opendev-tox-docs
     check:
       jobs: &jobs
+        - build-python-release:
+            nodeset: ubuntu-focal
         - tox-linters
         - tox-py35:
             nodeset: ubuntu-xenial
@@ -13,3 +17,10 @@
             nodeset: ubuntu-focal
     gate:
       jobs: *jobs
+    promote:
+      jobs:
+        - opendev-promote-python
+    release:
+      jobs:
+        - opendev-release-python:
+            nodeset: ubuntu-focal
