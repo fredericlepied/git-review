@@ -1,5 +1,5 @@
 ---
-deprecations:
+upgrade:
   - |
     Not really a deprecation so much as a removal, Gerrit 2.15 (released in
     2017) ceased providing a draft state for changes, and many large sites were

@@ -1,5 +1,5 @@
 ---
-critical:
+upgrade:
   - |
     As of this release, git-review no longer supports running under the Python
     2.7 interpreter. The major version component has been increased
