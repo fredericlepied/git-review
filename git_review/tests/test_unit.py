@@ -393,42 +393,42 @@ class DownloadFlagUnitTest(testtools.TestCase):
     def test_parse_url(self):
         args = self.parser.parse_args(
             ['-d',
-             'https://review.openstack.org/12345']
+             'https://review.opendev.org/12345']
         )
         self.assertEqual('12345', args.cid)
 
     def test_parse_url_trailing_slash(self):
         args = self.parser.parse_args(
             ['-d',
-             'https://review.openstack.org/12345/']
+             'https://review.opendev.org/12345/']
         )
         self.assertEqual('12345', args.cid)
 
     def test_parse_url_with_update(self):
         args = self.parser.parse_args(
             ['-d',
-             'https://review.openstack.org/12345/2']
+             'https://review.opendev.org/12345/2']
         )
         self.assertEqual('12345,2', args.cid)
 
     def test_parse_url_with_hash(self):
         args = self.parser.parse_args(
             ['-d',
-             'https://review.openstack.org/#/c/12345']
+             'https://review.opendev.org/#/c/12345']
         )
         self.assertEqual('12345', args.cid)
 
     def test_parse_url_with_hash_and_update(self):
         args = self.parser.parse_args(
             ['-d',
-             'https://review.openstack.org/#/c/12345/1']
+             'https://review.opendev.org/#/c/12345/1']
         )
         self.assertEqual('12345,1', args.cid)
 
     def test_parse_polygerrit_url(self):
         args = self.parser.parse_args(
             ['-d',
-             'https://review.openstack.org/c/org/project/+/12345']
+             'https://review.opendev.org/c/org/project/+/12345']
         )
         self.assertEqual('12345', args.cid)
 
@@ -436,37 +436,36 @@ class DownloadFlagUnitTest(testtools.TestCase):
 class RepoUrlParsingTest(testtools.TestCase):
     """Test Git URL parsing"""
 
-    def test_ssh_openstack(self):
+    def test_ssh_opendev(self):
         self.assertEqual(
             cmd.parse_gerrit_ssh_params_from_git_url(
-                'ssh://someone@review.openstack.org:29418/x/y'),
-            ('review.openstack.org', 'someone', '29418',
+                'ssh://someone@review.opendev.org:29418/x/y'),
+            ('review.opendev.org', 'someone', '29418',
              'x/y'))
 
     def test_ssh_no_user_no_port(self):
         self.assertEqual(
             cmd.parse_gerrit_ssh_params_from_git_url(
-                'ssh://review.openstack.org/openstack-infra/git-review'),
-            ('review.openstack.org', None, None,
-             'openstack-infra/git-review'))
+                'ssh://review.opendev.org/opendev/git-review'),
+            ('review.opendev.org', None, None, 'opendev/git-review'))
 
     def test_ssh_at_sign(self):
         self.assertEqual(
             cmd.parse_gerrit_ssh_params_from_git_url(
-                'ssh://someone@example.org@review.openstack.org:29418/x/y'),
-            ('review.openstack.org', 'someone@example.org', '29418',
+                'ssh://someone@example.org@review.opendev.org:29418/x/y'),
+            ('review.opendev.org', 'someone@example.org', '29418',
              'x/y'))
 
     def test_ssh_at_signs_excessive(self):
         self.assertEqual(
             cmd.parse_gerrit_ssh_params_from_git_url(
-                'ssh://x@y@example.org@review.openstack.org:29418/x/y'),
-            ('review.openstack.org', 'x@y@example.org', '29418',
+                'ssh://x@y@example.org@review.opendev.org:29418/x/y'),
+            ('review.opendev.org', 'x@y@example.org', '29418',
              'x/y'))
 
     def test_ssh_at_sign_escaped(self):
         self.assertEqual(
             cmd.parse_gerrit_ssh_params_from_git_url(
-                r'ssh://someone%40example.org@review.openstack.org:29418/x/y'),
-            ('review.openstack.org', r'someone%40example.org', '29418',
+                r'ssh://someone%40example.org@review.opendev.org:29418/x/y'),
+            ('review.opendev.org', r'someone%40example.org', '29418',
              'x/y'))

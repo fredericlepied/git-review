@@ -1,38 +1,44 @@
-============================
- Contributing to git-review
-============================
+Contribution Overview
+=====================
 
-This tool is considered mostly feature-complete by its authors. It
-is meant to provide a simple, convenient tool for users of basic
-Gerrit change workflows. Contributions fixing bugs or regressions,
-maintaining support for newer Gerrit/Git releases and improving test
-coverage are welcome and encouraged. It is not, however, intended as
-an all-encompassing Gerrit client (there are plenty of other tools
-available supporting more advanced interactions), so proposed
-feature additions may make more sense implemented as complementary
-``git`` subcommands or similar related but separate projects.
+OpenDev's tools are hosted within the OpenDev collaboratory, and
+development for them uses workflows described in the OpenDev
+Infrastructure Manual:
 
-To get the latest code, see: https://git.openstack.org/cgit/openstack-infra/git-review
+http://docs.opendev.org/opendev/manual/developers.html
 
-Bugs are handled at: https://storyboard.openstack.org/#!/project/719
+Defect reporting and task tracking takes place here:
 
-Code reviews, as you might expect, are handled by gerrit at:
-https://review.openstack.org
-Pull requests submitted through GitHub will be ignored.
+https://storyboard.openstack.org/#!/project/opendev/git-review
 
-Use ``git review`` to submit patches (after creating a gerrit account
-that links to your launchpad account). Example::
+Developing git-review
+=====================
 
-    # Do your commits
-    git review
-    # Enter your username if prompted
+Either install `bindep` and run ``bindep test`` to check you have the needed
+tools, or review ``bindep.txt`` by hand.
 
-The code review process is documented at
-https://docs.openstack.org/infra/manual/developers.html If that process is
-not enough to get reviewers' attention then try these (in that order):
+Running Tests
+-------------
 
-1. Use git log and git blame to find "who last touched the file" and add
-   them. Make sure they're still active on https://review.openstack.org
-2. Ping the #openstack-infra IRC channel, see developers.html above.
-3. As a last resort, mailing-list at:
-   http://lists.openstack.org/cgi-bin/mailman/listinfo/openstack-infra
+The testing system is based on a combination of tox and testr. The canonical
+approach to running tests is to simply run the command `tox`. This will
+create virtual environments, populate them with dependencies and run all of
+the tests that OpenStack CI systems run. Behind the scenes, tox is running
+`testr run --parallel`, but is set up such that you can supply any additional
+testr arguments that are needed to tox. For example, you can run:
+`tox -- --analyze-isolation` to cause tox to tell testr to add
+--analyze-isolation to its argument list.
+
+It is also possible to run the tests inside of a virtual environment
+you have created, or it is possible that you have all of the dependencies
+installed locally already. If you'd like to go this route, the requirements
+are listed in requirements.txt and the requirements for testing are in
+test-requirements.txt. Installing them via pip, for instance, is simply::
+
+  pip install -r requirements.txt -r test-requirements.txt
+
+In you go this route, you can interact with the testr command directly.
+Running `testr run` will run the entire test suite. `testr run --parallel`
+will run it in parallel (this is the default incantation tox uses.) More
+information about testr can be found at:
+https://testrepository.readthedocs.io/en/latest/
