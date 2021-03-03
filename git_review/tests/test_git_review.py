@@ -226,8 +226,6 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
         """Test message displayed when unstaged changes are present."""
         self._run_git_review('-s')
         self._run_git('checkout', '-b', 'test_branch')
-        # By not passing a filename, we rely on an edit to a preprovisioned
-        # tracked default file, which will be unstaged
         self._unstaged_change(change_text='simple message')
         exc = self.assertRaises(Exception, self._run_git_review)
         self.assertIn("You have unstaged changes. Please", exc.args[0])
@@ -236,8 +234,6 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
         """Test message displayed when staged changes are present."""
         self._run_git_review('-s')
         self._run_git('checkout', '-b', 'test_branch')
-        # By passing a filename, we rely on an edit to a new tracked
-        # file, which will be staged
         self._uncommitted_change(change_text='simple message')
         exc = self.assertRaises(Exception, self._run_git_review)
         self.assertIn("You have uncommitted changes. Please", exc.args[0])
