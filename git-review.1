@@ -179,6 +179,10 @@ When submitting a change for review, you will usually want it to be based on the
 Also can be used for
 .Fl \-compare
 to skip automatic rebase of fetched reviews.
+.It Fl \-no-thin
+Disable thin pushes when pushing to Gerrit. This should only be used if you
+are currently experiencing unpack failures due to missing trees. It should
+not be required in typical day to day use.
 .It Fl \-color Ar always|never|auto
 Enable or disable a color output. Default is "auto".
 .It Fl \-no\-color

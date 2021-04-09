@@ -1538,6 +1538,9 @@ additional information:
     parser.add_argument("-l", "--list", dest="list", action="count",
                         help="List available reviews for the current project, "
                         "if passed more than once, will show more information")
+    parser.add_argument("--no-thin", dest="no_thin", action="store_true",
+                        help="git push with --no-thin. This may workaround "
+                        "issues with pushing in some circumstances.")
     parser.add_argument("-y", "--yes", dest="yes", action="store_true",
                         help="Indicate that you do, in fact, understand if "
                              "you are submitting more than one patch")
@@ -1701,10 +1704,14 @@ additional information:
             sys.exit(1)
     assert_one_change(remote, branch, yes, have_hook)
 
+    no_thin = ''
+    if options.no_thin:
+        no_thin = '--no-thin'
+
     ref = "for"
 
-    cmd = ("git push --no-follow-tags %s HEAD:refs/%s/%s" %
-           (remote, ref, branch))
+    cmd = ("git push --no-follow-tags %s %s HEAD:refs/%s/%s" %
+           (no_thin, remote, ref, branch))
     push_options = []
     if options.topic is not None:
         topic = options.topic
