@@ -501,6 +501,15 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
     def test_git_review_F_R(self):
         self.assertRaises(Exception, self._run_git_review, '-F', '-R')
 
+    def test_git_review_no_thin(self):
+        """Test git-review --no-thin."""
+        self._run_git_review('-s')
+
+        # Push with --no-thin set. We can't really introspect the packs
+        # that were sent so we infer success as the command not failing.
+        self._simple_change('test file modified', 'test commit message')
+        self._run_git_review('--no-thin')
+
     def test_config_instead_of_honored(self):
         self.set_remote('test_project_url')
 
