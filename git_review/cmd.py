@@ -247,7 +247,7 @@ def run_custom_script(action):
     script_file = "%s-review" % (action)
     (top_dir, git_dir) = git_directories()
     paths = [os.path.join(CONFIGDIR, "hooks", script_file),
-             os.path.join(git_dir, "hooks", script_file)]
+             os.path.join(git_get_hooks_path(top_dir, git_dir), script_file)]
     for fpath in paths:
         if os.path.isfile(fpath) and os.access(fpath, os.X_OK):
             status, output = run_command_status(fpath)
@@ -285,7 +285,26 @@ def git_config_get_value(section, option, default=None, as_bool=False):
         raise
 
 
+def git_get_hooks_path(top_dir, git_dir):
+    """Get the path where we need to store and retrieve Git hooks.
+
+    Normally hooks go into .git/hooks, but users can override with the
+    core.hooksPath option. This can either be an absolute path, in
+    which case we use it as-is, or a relative path, in which case we
+    must interpret it as relative to top_dir.
+    """
+    hook_dir = os.path.join(git_dir, "hooks")
+    hooks_path_option = git_config_get_value('core', 'hooksPath')
+    if hooks_path_option:
+        if os.path.isabs(hooks_path_option):
+            hook_dir = hooks_path_option
+        else:
+            hook_dir = os.path.join(top_dir, hooks_path_option)
+    return hook_dir
+
+
 class Config(object):
+
     """Expose as dictionary configuration options."""
 
     def __init__(self, config_file=None):
@@ -365,6 +384,9 @@ def set_hooks_commit_msg(remote, target_file):
             run_command_exc(CannotInstallHook, *cmd)
         # If there are submodules, the hook needs to be installed into
         # each of them.
+        # Here, we don't check for any nonstandard hooks path, because
+        # it should be safe to assume that very few users are inclined
+        # to set the core.hooksPath option in a submodule checkout.
         run_command_exc(
             CannotInstallHook,
             "git", "submodule", "foreach",
@@ -1686,7 +1708,8 @@ additional information:
     if options.custom_script:
         run_custom_script("pre")
 
-    hook_file = os.path.join(git_dir, "hooks", "commit-msg")
+    hook_dir = git_get_hooks_path(top_dir, git_dir)
+    hook_file = os.path.join(hook_dir, "commit-msg")
     have_hook = os.path.exists(hook_file) and os.access(hook_file, os.X_OK)
 
     if not have_hook:

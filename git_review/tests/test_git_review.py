@@ -18,6 +18,7 @@
 import json
 import os
 import shutil
+import tempfile
 import testtools
 
 from git_review import tests
@@ -101,6 +102,53 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
         utils.run_cmd('mkdir', 'subdirectory', chdir=self.test_dir)
         self._run_git_review(
             '-s', chdir=os.path.join(self.test_dir, 'subdirectory'))
+
+    def test_git_review_s_without_core_hooks_path_option(self):
+        """Test whether git-review -s correctly creates the commit-msg hook,
+        with the Git core.hooksPath option unset.
+        """
+        hooks_subdir = ".git/hooks"
+        self.reset_remote()
+
+        # There really isn't a good way to ensure that
+        # "core.hooksPath" option is presently unset. "git config
+        # --unset" is not idempotent; if you try to unset a config
+        # option that isn't defined it fails with an exit code of
+        # 5. Running "git config core.hooksPath" to retrieve the value
+        # returns 1 if unset, but we can't use self.assertRaises here
+        # either because run_cmd raises a generic Exception and that's
+        # too broad. So instead, we don't check core.hooksPath at all
+        # here, and instead rely on the next two tests to unset the
+        # option after they've set it.
+        self._run_git_review('-s')
+        self.assertTrue(os.path.exists(os.path.join(self.test_dir,
+                                                    hooks_subdir,
+                                                    'commit-msg')))
+
+    def test_git_review_s_with_core_hooks_path_option_relative(self):
+        """Test whether git-review -s correctly creates the commit-msg hook,
+        with the Git core.hooksPath option set to a relative path.
+        """
+        hooks_subdir = "foo"
+        self.reset_remote()
+        self._run_git("config", "core.hooksPath", hooks_subdir)
+        self._run_git_review('-s')
+        self.assertTrue(os.path.exists(os.path.join(self.test_dir,
+                                                    hooks_subdir,
+                                                    'commit-msg')))
+        self._run_git("config", "--unset", "core.hooksPath")
+
+    def test_git_review_s_with_core_hooks_path_option_absolute(self):
+        """Test whether git-review -s correctly creates the commit-msg hook,
+        with the Git core.hooksPath option set to an absolute path.
+        """
+        self.reset_remote()
+        with tempfile.TemporaryDirectory() as hooks_dir:
+            self._run_git("config", "core.hooksPath", hooks_dir)
+            self._run_git_review('-s')
+            self.assertTrue(os.path.exists(os.path.join(hooks_dir,
+                                                        'commit-msg')))
+        self._run_git("config", "--unset", "core.hooksPath")
 
     def test_git_review_d(self):
         """Test git-review -d."""
