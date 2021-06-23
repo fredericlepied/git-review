@@ -89,9 +89,13 @@ Hooks
 git-review has a custom hook mechanism to run a script before certain
 actions. This is done in the same spirit as the classic hooks in git.
 
-There are two types of hooks, a global one which is stored in
-``~/.config/git-review/hooks/`` and one local to the repository stored in
-``.git/hooks/`` with the other git hook scripts.
+There are two types of hooks:
+
+* a global one which is stored in ``~/.config/git-review/hooks/``,
+
+* and one local to the repository, which is stored with the other git
+  hook scripts. Normally that's the ``.git/hooks/`` directory in your
+  checkout.
 
 **The script needs be executable before getting executed**
 
