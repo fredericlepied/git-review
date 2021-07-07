@@ -291,6 +291,18 @@ class BaseGitReviewTestCase(testtools.TestCase, GerritHelpers):
                              '--work-tree=' + self._dir('test'),
                              command, *args)
 
+    def _run_git_sub(self, command, *args):
+        """Run git command using submodule of test git directory."""
+        if command == 'init':
+            utils.run_git('init', self._dir('test', 'sub'))
+            self._simple_change_sub('submodule content', 'initial commit')
+            utils.run_git('submodule', 'add', os.path.join('.', 'sub'),
+                          chdir=self._dir('test'))
+            return self._run_git('commit', '-m', 'add submodule')
+        return utils.run_git('--git-dir=' + self._dir('test', 'sub', '.git'),
+                             '--work-tree=' + self._dir('test', 'sub'),
+                             command, *args)
+
     def _run_gerrit(self, ssh_addr, ssh_port, http_addr, http_port):
         # create a copy of site dir
         if os.path.exists(self.site_dir):
@@ -343,6 +355,26 @@ class BaseGitReviewTestCase(testtools.TestCase, GerritHelpers):
         # cannot use --no-edit because it does not exist in older git
         message = self._run_git('log', '-1', '--format=%s\n\n%b')
         self._run_git('commit', '--amend', '-m', message)
+
+    def _unstaged_change_sub(self, change_text, file_=None):
+        """Helper method to create small submodule changes and not stage."""
+        if file_ is None:
+            file_ = self._dir('test', 'sub', 'test_file.txt')
+        utils.write_to_file(file_, ''.encode())
+        self._run_git_sub('add', file_)
+        utils.write_to_file(file_, change_text.encode())
+
+    def _uncommitted_change_sub(self, change_text, file_=None):
+        """Helper method to create small submodule changes and not commit."""
+        if file_ is None:
+            file_ = self._dir('test', 'sub', 'test_file.txt')
+        self._unstaged_change_sub(change_text, file_)
+        self._run_git_sub('add', file_)
+
+    def _simple_change_sub(self, change_text, commit_message, file_=None):
+        """Helper method to create small submodule changes and commit them."""
+        self._uncommitted_change_sub(change_text, file_)
+        self._run_git_sub('commit', '-m', commit_message)
 
     def _configure_ssh(self, ssh_addr, ssh_port):
         """Setup ssh and scp to run with special options."""

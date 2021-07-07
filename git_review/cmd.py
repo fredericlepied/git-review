@@ -888,13 +888,13 @@ def rebase_changes(branch, remote, interactive=True):
     # Either the rebase will fail with a similar message, or if the user
     # has turned on rebase.autostash then the subsequent reset will
     # silently discard those changes.
-    cmd = "git diff --quiet"
+    cmd = "git diff --ignore-submodules --quiet"
     (status, output) = run_command_status(cmd)
     if status != 0:
         printwrap("You have unstaged changes. Please commit or stash them "
                   "first, and then try again.")
         sys.exit(1)
-    cmd = "git diff --cached --quiet"
+    cmd = "git diff --cached --ignore-submodules --quiet"
     (status, output) = run_command_status(cmd)
     if status != 0:
         printwrap("You have uncommitted changes. Please commit or stash them "

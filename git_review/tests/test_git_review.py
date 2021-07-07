@@ -286,6 +286,22 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
         exc = self.assertRaises(Exception, self._run_git_review)
         self.assertIn("You have uncommitted changes. Please", exc.args[0])
 
+    def test_ignore_unstaged_submodule_changes(self):
+        """Test message displayed when unstaged changes are present."""
+        self._run_git_review('-s')
+        self._run_git('checkout', '-b', 'test_branch')
+        self._run_git_sub('init')
+        self._unstaged_change_sub(change_text='simple message')
+        self._run_git_review()
+
+    def test_ignore_uncommitted_submodule_changes(self):
+        """Test message displayed when staged changes are present."""
+        self._run_git_review('-s')
+        self._run_git('checkout', '-b', 'test_branch')
+        self._run_git_sub('init')
+        self._uncommitted_change_sub(change_text='simple message')
+        self._run_git_review()
+
     def test_rebase_no_remote_branch_msg(self):
         """Test message displayed where no remote branch exists."""
         self._run_git_review('-s')
