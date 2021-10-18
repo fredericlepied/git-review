@@ -72,7 +72,8 @@ The following options are available:
 Download
 .Ar change
 from Gerrit
-into a local branch. The branch will be named after the patch author and the name of a topic.
+into a local branch. The branch will be named after the patch author and the name of a topic or
+from the name passed on the command line in the branch parameter.
 If the local branch already exists, it will attempt to update with the latest patchset for this change.
 .It Fl x Ar change , Fl \-cherrypick= Ns Ar change
 Apply
@@ -459,6 +460,16 @@ Switched to branch 'review/someone/topic_name
 $ git branch
   master
 * review/author/topic_name
+.Ed
+.Pp
+.Bd -literal -offset indent
+$ git\-review \-d 3004 my-branch
+Downloading refs/changes/04/3004/1 from gerrit into
+my-branch
+Switched to branch 'my-branch
+$ git branch
+  master
+* my-branch
 .Ed
 .Pp
 Gerrit looks up both name of the author and the topic name from Gerrit

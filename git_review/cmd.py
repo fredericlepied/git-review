@@ -1741,7 +1741,8 @@ additional information:
                                                    branch, remote,
                                                    config['project'])
         if options.download:
-            checkout_review(local_branch, remote, remote_branch)
+            checkout_review(options.branch if options.branch else local_branch,
+                            remote, remote_branch)
         else:
             if options.cherrypickcommit:
                 cherrypick_review()
