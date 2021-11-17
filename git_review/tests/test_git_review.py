@@ -323,9 +323,11 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
                             'create conflict with master')
 
         exc = self.assertRaises(Exception, self._run_git_review)
-        self.assertIn(
-            "Errors running git rebase -p -i remotes/%s/master" % self._remote,
-            exc.args[0])
+        rebased = ("Errors running git rebase --rebase-merges "
+                   "-i remotes/%s/master" % self._remote in exc.args[0] or
+                   "Errors running git rebase --preserve-merges "
+                   "-i remotes/%s/master" % self._remote in exc.args[0])
+        self.assertTrue(rebased)
         self.assertIn("It is likely that your change has a merge conflict.",
                       exc.args[0])
 
@@ -341,9 +343,11 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
                             self._dir('test', 'new_test_file.txt'))
 
         review_res = self._run_git_review('-v')
-        self.assertIn(
-            "Running: git rebase -p -i remotes/%s/master" % self._remote,
-            review_res)
+        rebased = ("Running: git rebase --rebase-merges "
+                   "-i remotes/%s/master" % self._remote in review_res or
+                   "Running: git rebase --preserve-merges "
+                   "-i remotes/%s/master" % self._remote in review_res)
+        self.assertTrue(rebased)
         self.assertEqual(self._run_git('rev-parse', 'HEAD^1'), head_1)
 
     def test_uploads_with_nondefault_rebase(self):
@@ -383,8 +387,10 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
 
         review_res = self._run_git_review('-v')
         # no rebase needed; if it breaks it would try to rebase to master
-        self.assertNotIn("Running: git rebase -p -i remotes/origin/master",
-                         review_res)
+        self.assertNotIn("Running: git rebase --rebase-merges "
+                         "-i remotes/origin/master", review_res)
+        self.assertNotIn("Running: git rebase --preserve-merges "
+                         "-i remotes/origin/master", review_res)
         # Don't need to query gerrit for the branch as the second half
         # of this test will work only if the branch was correctly
         # stored in gerrit
@@ -401,8 +407,11 @@ class GitReviewTestCase(tests.BaseGitReviewTestCase):
         self.assertEqual(change_id, new_change_id)
         review_res = self._run_git_review('-v')
         # caused the right thing to happen
-        self.assertIn("Running: git rebase -p -i remotes/origin/maint",
-                      review_res)
+        rebased = ("Running: git rebase --rebase-merges "
+                   "-i remotes/origin/maint" in review_res or
+                   "Running: git rebase --preserve-merges "
+                   "-i remotes/origin/maint" in review_res)
+        self.assertTrue(rebased)
 
         # track different branch than expected in changeset
         branch = self._run_git('rev-parse', '--abbrev-ref', 'HEAD')

@@ -909,10 +909,25 @@ def rebase_changes(branch, remote, interactive=True):
                   "re-run with the '-R' option enabled." % (branch, remote))
         sys.exit(1)
 
-    if interactive:
-        cmd = "git rebase -p -i %s" % remote_branch
-    else:
-        cmd = "git rebase -p %s" % remote_branch
+    # Determine git version to set rebase flags below.
+    output = run_command("git version")
+    rebase_flag = "--rebase-merges"
+    if "git version" in output:
+        try:
+            v = output.rsplit(None, 1)[1]
+            gitv = tuple(map(int, v.split('.')[:3]))
+            if gitv < (2, 18, 0):
+                rebase_flag = "--preserve-merges"
+        except Exception:
+            # We tried to determine the version and failed. Use current git
+            # flag as fallback.
+            warn("Could not determine git version. "
+                 "Using modern git rebase flags.")
+
+    interactive_flag = interactive and '-i' or ''
+
+    cmd = "git rebase %s %s %s" % \
+        (rebase_flag, interactive_flag, remote_branch)
 
     (status, output) = run_command_status(cmd, GIT_EDITOR='true')
     if status != 0:
