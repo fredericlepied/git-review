@@ -373,9 +373,17 @@ def set_hooks_commit_msg(remote, target_file):
                 userhost = hostname
             # OS independent target file
             scp_target_file = target_file.replace(os.sep, "/")
+
+            # Get scp options
+            scp_out = run_command("scp")
+            scp_opts = scp_out[scp_out.index("[") + 2:scp_out.index("]")]
+
             cmd = ["scp", userhost + ":hooks/commit-msg", scp_target_file]
             if port is not None:
                 cmd.insert(1, "-P%s" % port)
+            # Force scp protocol if the -O option is available
+            if "O" in scp_opts:
+                cmd.insert(1, "-O")
 
             if VERBOSE:
                 hook_url = 'scp://%s%s/hooks/commit-msg' \
