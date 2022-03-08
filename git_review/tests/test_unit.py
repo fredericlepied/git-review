@@ -21,9 +21,9 @@ import io
 import os
 import sys
 import textwrap
+from unittest import mock
 
 import fixtures
-import mock
 import testtools
 
 from git_review import cmd
