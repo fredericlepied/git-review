@@ -968,7 +968,10 @@ def assert_one_change(remote, branch, yes, have_hook):
                       "branches (for independent changes).")
             print("\nThe outstanding commits are:\n\n%s\n\n"
                   "Do you really want to submit the above commits?" % output)
-            yes_no = input("Type 'yes' to confirm, other to cancel: ")
+            try:
+                yes_no = input("Type 'yes' to confirm, other to cancel: ")
+            except KeyboardInterrupt:
+                yes_no = "no"
             if yes_no.lower().strip() != "yes":
                 print("Aborting.")
                 sys.exit(1)
