@@ -7,8 +7,6 @@
       jobs: &jobs
         - build-python-release
         - tox-linters
-        - tox-py35:
-            nodeset: ubuntu-xenial
         - tox-py36:
             nodeset: ubuntu-bionic
         - tox-py37:
