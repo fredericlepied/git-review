@@ -94,7 +94,7 @@ class CommandFailed(GitReviewException):
             ("output", self.output)])
 
     def __str__(self):
-        return self.__doc__ + """
+        return """
 The following command failed with exit code %(rc)d
     "%(argv)s"
 -----------------------
@@ -109,7 +109,7 @@ class ChangeSetException(GitReviewException):
         self.e = str(e)
 
     def __str__(self):
-        return self.__doc__ % self.e
+        return self.e
 
 
 def printwrap(unwrapped):
