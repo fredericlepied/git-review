@@ -44,6 +44,7 @@ USER_CONFIG = os.path.join(CONFIGDIR, "git-review.conf")
 DEFAULTS = dict(scheme='ssh', hostname=False, port=None, project=False,
                 branch='master', remote="gerrit", rebase="1",
                 track="0", usepushurl="0", notopic=False, branchauthor="name")
+LOCAL_GIT_VERSION = (0, 0, 0)
 COPYRIGHT = """\
 Copyright OpenStack Foundation and OpenDev Contributors
 
@@ -61,6 +62,10 @@ implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
+# Bump this if a feature of a more recent git is unconditionally
+# required
+MINIMUM_GIT_VERSION = (2, 10, 0)
 
 
 _branch_name = None
@@ -217,6 +222,23 @@ def get_version():
     requirement = pkg_resources.Requirement.parse('git-review')
     provider = pkg_resources.get_provider(requirement)
     return provider.version
+
+
+def get_git_version():
+    global LOCAL_GIT_VERSION
+    output = run_command("git version")
+    if "git version" in output:
+        try:
+            v = output.rsplit(None, 1)[1]
+            LOCAL_GIT_VERSION = tuple(map(int, v.split('.')[:3]))
+        except Exception:
+            printwrap("Could not determine git version!")
+            sys.exit(1)
+    if LOCAL_GIT_VERSION < MINIMUM_GIT_VERSION:
+        printwrap("Local git version %s < required git version %s" %
+                  '.'.join(map(str, LOCAL_GIT_VERSION)),
+                  '.'.join(map(str, MINIMUM_GIT_VERSION)))
+        sys.exit(1)
 
 
 def git_directories():
@@ -917,20 +939,9 @@ def rebase_changes(branch, remote, interactive=True):
                   "re-run with the '-R' option enabled." % (branch, remote))
         sys.exit(1)
 
-    # Determine git version to set rebase flags below.
-    output = run_command("git version")
-    rebase_flag = "--rebase-merges"
-    if "git version" in output:
-        try:
-            v = output.rsplit(None, 1)[1]
-            gitv = tuple(map(int, v.split('.')[:3]))
-            if gitv < (2, 18, 0):
-                rebase_flag = "--preserve-merges"
-        except Exception:
-            # We tried to determine the version and failed. Use current git
-            # flag as fallback.
-            warn("Could not determine git version. "
-                 "Using modern git rebase flags.")
+    rebase_flag = '--rebase-merges'
+    if LOCAL_GIT_VERSION < (2, 18, 0):
+        rebase_flag = "--preserve-merges"
 
     interactive_flag = interactive and '-i' or ''
 
@@ -1676,6 +1687,8 @@ additional information:
         # explicitly-specified branch on command line overrides options.track
         branch = options.branch
         options.track = False
+
+    get_git_version()
 
     global VERBOSE
     global UPDATE
