@@ -21,3 +21,4 @@
     release:
       jobs:
         - opendev-release-python
+        - opendev-publish-unversioned-tox-docs
