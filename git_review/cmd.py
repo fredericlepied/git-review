@@ -984,8 +984,8 @@ def assert_one_change(remote, branch, yes, have_hook):
         use_color = "--color=always"
     else:
         use_color = "--color=never"
-    cmd = ("git log %s --decorate --oneline HEAD --not --remotes=%s" % (
-           use_color, remote))
+    cmd = ("git log %s --decorate --oneline --no-show-signature "
+           "HEAD --not --remotes=%s" % (use_color, remote))
     (status, output) = run_command_status(cmd)
     if status != 0:
         print("Had trouble running %s" % cmd)
