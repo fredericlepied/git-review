@@ -229,7 +229,13 @@ def get_git_version():
     output = run_command("git version")
     if "git version" in output:
         try:
-            v = output.rsplit(None, 1)[1]
+            # Git version on Linux is of the form:
+            #   git version 2.35.3
+            # But on OS X we get:
+            #   git version 2.20.1 (Apple Git-117)
+            # Keep this as simple as possible by splitting on whitespace
+            # and then selecting the 3rd element which should be the version.
+            v = output.split()[2]
             LOCAL_GIT_VERSION = tuple(map(int, v.split('.')[:3]))
         except Exception:
             printwrap("Could not determine git version!")
