@@ -30,7 +30,8 @@ If you want to submit a branch for review and then remove the local branch::
 
     git review -f
 
-If you want to skip the automatic "git rebase -i" step::
+If you want to be able to push a change which has a merge conflict with the
+remote branch::
 
     git review -R
 

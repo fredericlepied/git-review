@@ -131,12 +131,17 @@ If the master branch is different enough, the rebase can produce merge conflicts
 If that happens rebasing will be aborted and diff displayed for not\-rebased branches.
 You can also use
 .Ar \-\-no\-rebase ( Ar \-R )
-to always skip rebasing.
+to always skip the test rebase.
 .It Fl f , Fl \-finish
 Close down the local branch and switch back to the target branch on
 successful submission.
 .It Fl F , Fl \-force\-rebase
-Force a rebase before doing anything else, even if not otherwise needed.
+Force a rebase before doing anything else, even if not otherwise needed. Unlike
+the normal test rebase, this rebase will be kept. Use if you know you want to
+push a commit automatically rebased onto the current state of the target
+branch. This is discouraged if amending an existing change, since it creates
+unnecessary additional differences from the previous revision and so makes
+things harder for reviewers of your changes.
 .It Fl n , Fl \-dry\-run
 Don\(aqt actually perform any commands that have direct effects. Print them
 instead.
@@ -171,10 +176,14 @@ one patch.
 .It Fl v , Fl \-verbose
 Turns on more verbose output.
 .It Fl R , Fl \-no\-rebase
-Do not automatically perform a rebase before submitting the change to
-Gerrit.
+Don't test for possible merge conflicts with the target branch before pushing.
+If the test rebase detects no merge conflicts then the rebase is undone and
+your previous state is pushed. If merge conflicts are detected git\-review
+exits with the rebase in progress allowing you to address it manually. By
+default git\-review will never push the results of a rebase without your
+explicit involvement.
 .Pp
-When submitting a change for review, you will usually want it to be based on the tip of upstream branch in order to avoid possible conflicts. When amending a change and rebasing the new patchset, the Gerrit web interface will show a difference between the two patchsets which contains all commits in between. This may confuse many reviewers that would expect to see a much simpler difference.
+Use the this option to skip the merge conflict test, allowing you to push merge conflicts.
 .Pp
 Also can be used for
 .Fl \-compare

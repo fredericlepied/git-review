@@ -1540,10 +1540,12 @@ additional information:
     rebase_group = parser.add_mutually_exclusive_group()
     rebase_group.add_argument("-R", "--no-rebase", dest="rebase",
                               action="store_false",
-                              help="Don't rebase changes before submitting.")
+                              help="Don't test for remote merge conflicts"
+                                   " before pushing.")
     rebase_group.add_argument("-F", "--force-rebase", dest="force_rebase",
                               action="store_true",
-                              help="Force rebase even when not needed.")
+                              help="Force and push a rebase even when not"
+                                   " needed.")
 
     track_group = parser.add_mutually_exclusive_group()
     track_group.add_argument("--track", dest="track",
