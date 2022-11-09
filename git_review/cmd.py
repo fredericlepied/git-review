@@ -27,6 +27,7 @@ import shlex
 import subprocess
 import sys
 import textwrap
+from urllib.parse import quote_plus
 from urllib.parse import urlencode
 from urllib.parse import urljoin
 from urllib.parse import urlparse
@@ -1536,6 +1537,8 @@ additional information:
                         choices=['NONE', 'OWNER', 'OWNER_REVIEWERS', 'ALL'],
                         help="Control to whom email notifications are sent,"
                              " defaults to ALL.")
+    parser.add_argument("--message", dest="message",
+                        help="Message to add to patch set description")
 
     rebase_group = parser.add_mutually_exclusive_group()
     rebase_group.add_argument("-R", "--no-rebase", dest="rebase",
@@ -1820,6 +1823,10 @@ additional information:
 
     if options.notify is not None:
         push_options.append("notify=%s" % options.notify)
+
+    if options.message is not None:
+        escaped_message = quote_plus(options.message)
+        push_options.append(f"m={escaped_message}")
 
     if push_options:
         cmd += "%" + ",".join(push_options)
