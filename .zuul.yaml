@@ -11,8 +11,10 @@
             nodeset: ubuntu-bionic
         - tox-py37:
             nodeset: ubuntu-bionic
-        - tox-py38
-        - tox-py39
+        - tox-py38:
+            nodeset: ubuntu-focal
+        - tox-py39:
+            nodeset: ubuntu-focal
     gate:
       jobs: *jobs
     promote:
